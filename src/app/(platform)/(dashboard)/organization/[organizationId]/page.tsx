@@ -10,13 +10,13 @@ const OrganizationPage = async ({ params }: OrganizationPageProps) => {
   const user = await currentUser();
 
   const { userId } = auth();
+  console.log(user);
+
   return (
     <div>
-      <div>
-        OrganizationPage
-        {params.organizationId}
-      </div>
-      <div>{user?.firstName}</div>
+      <div>OrganizationPage</div>
+      <div>{params.organizationId}</div>
+      <div>{user?.username}</div>
       <div>{userId}</div>
     </div>
   );
