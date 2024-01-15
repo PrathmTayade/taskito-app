@@ -14,26 +14,21 @@ interface OrganizationPageProps {
 }
 
 const OrganizationPage = async ({ params }: OrganizationPageProps) => {
-  // const user = await currentUser();
-
-  const { userId } = auth();
-  // console.log(user);
-
   const boards = await db.taskApp_Board.findMany({
     where: { orgId: params.organizationId },
   });
 
-  const handleSubmit = async (data: FormData) => {
-    "use server";
-    const title = data.get("title") as string;
-    const rawData = {
-      title: title,
-      orgId: params.organizationId,
-      imageId: title + params.organizationId,
-    };
-    createBoard(rawData);
-    revalidatePath("/organization/" + params.organizationId);
-  };
+  // const handleSubmit = async (data: FormData) => {
+  //   "use server";
+  //   const title = data.get("title") as string;
+  //   const rawData = {
+  //     title: title,
+  //     orgId: params.organizationId,
+  //     imageId: title + params.organizationId,
+  //   };
+  //   createBoard(rawData);
+  //   revalidatePath("/organization/" + params.organizationId);
+  // };
 
   return (
     <div>

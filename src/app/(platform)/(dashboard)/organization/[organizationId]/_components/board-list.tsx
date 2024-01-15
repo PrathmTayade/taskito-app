@@ -1,8 +1,5 @@
-import CreateBoardForm from "@/components/create-board-form";
-import DialogCloseButton from "@/components/dialogclose";
-import FormPopover from "@/components/form-popover";
-import { Hint } from "@/components/hint";
-import { HelpCircle, User2 } from "lucide-react";
+import CreateBoardFormModal from "@/components/create-board-form";
+import { User2 } from "lucide-react";
 import Link from "next/link";
 import { FC } from "react";
 
@@ -57,7 +54,7 @@ const BoardList: FC<BoardListProps> = ({ boards }) => {
           </div>
         </FormPopover> */}
         {/* create board */}
-        <CreateBoardForm />
+        <CreateBoardFormModal />
       </div>
     </div>
   );
