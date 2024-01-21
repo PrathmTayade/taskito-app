@@ -28,7 +28,7 @@ import {
   FormLabel,
   FormMessage,
 } from "./ui/form";
-import { ReactNode } from "react";
+import { ReactNode, useState } from "react";
 import { boardFormSchema } from "@/actions/action-schema";
 import router from "next/router";
 import { useMutation, useQuery } from "@tanstack/react-query";
@@ -37,17 +37,22 @@ import { revalidatePath, revalidateTag } from "next/cache";
 import { useParams, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import ImagePicker from "./image-picker";
+import { title } from "process";
+import { toast } from "sonner";
+import { useToast } from "./ui/use-toast";
 
-interface CreateBoardForm {}
+interface CreateBoardForm {
+  closeForm: () => void;
+}
 
-const CreateBoardForm = ({}: CreateBoardForm) => {
+const CreateBoardForm = ({ closeForm }: CreateBoardForm) => {
   const params = useParams();
   const router = useRouter();
   const form = useForm<z.infer<typeof boardFormSchema>>({
     resolver: zodResolver(boardFormSchema),
     defaultValues: {
       title: "",
-      imageId: "mock-image-url",
+      image: "",
     },
   });
 
@@ -60,47 +65,39 @@ const CreateBoardForm = ({}: CreateBoardForm) => {
     mutationFn: (payload: z.infer<typeof boardFormSchema>) =>
       axios.post("/api/board/create", payload),
     onSuccess(data, variables, context) {
-      // toast
-      console.log("board created");
-      router.refresh();
+      toast.success("Board created.");
+      closeForm();
+      // router.refresh();
+      router.push(`/board/${data.data}`);
     },
 
-    // onError: (err) => {
-    //   if (err instanceof AxiosError) {
-    //     if (err.response?.status === 409) {
-    //       return console.log({
-    //         title: "Subreddit already exists.",
-    //         description: "Please choose a different name.",
-    //         variant: "destructive",
-    //       });
-    //     }
+    onError: (err) => {
+      if (err instanceof AxiosError) {
+        if (err.response?.status === 409) {
+          return toast.error("Board already exists.");
+        }
 
-    //     if (err.response?.status === 422) {
-    //       return console.log({
-    //         title: "Invalid subreddit name.",
-    //         description: "Please choose a name between 3 and 21 letters.",
-    //         variant: "destructive",
-    //       });
-    //     }
+        if (err.response?.status === 422) {
+          return toast.error("Invalid Board name.");
+        }
 
-    //     if (err.response?.status === 401) {
-    //       return console.log("unaautrized");
-    //     }
-    //   }
+        if (err.response?.status === 401) {
+          return toast.error("Unauthorized.");
+        }
+      }
 
-    //   console.log({
-    //     title: "There was an error.",
-    //     description: "Could not create subreddit.",
-    //     variant: "destructive",
-    //   });
-    // },
+      console.log({
+        title: "There was an error.",
+        description: "Could not create subreddit.",
+        variant: "destructive",
+      });
+    },
   });
 
   async function onSubmit(values: z.infer<typeof boardFormSchema>) {
     // Do something with the form values.
-    // ✅ This will be type-safe and validated.
-    console.log(values);
-    createBoard(values);
+    const { title, image } = values;
+    createBoard({ title, image });
   }
   return (
     <Form {...form}>
@@ -120,18 +117,18 @@ const CreateBoardForm = ({}: CreateBoardForm) => {
         />
         <FormField
           control={form.control}
-          name="imageId"
+          name="image"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Img id</FormLabel>
+              <FormLabel>Image</FormLabel>
               <FormControl>
-                <Input placeholder="img id" {...field} />
+                <ImagePicker field={field} />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
-        <ImagePicker id={"mock-imge-if"}  />
+
         <div className="">
           <Button
             type="submit"
@@ -156,8 +153,12 @@ const CreateBoardForm = ({}: CreateBoardForm) => {
 };
 
 const CreateBoardFormModal = () => {
+  const [open, setOpen] = useState(false);
+
+  const closeForm = () => setOpen(false);
+
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button
           variant="outline"
@@ -175,7 +176,7 @@ const CreateBoardFormModal = () => {
         </DialogHeader>
 
         {/* form */}
-        <CreateBoardForm />
+        <CreateBoardForm closeForm={closeForm} />
         {/* <DialogFooter className="sm:justify-end gap-2 flex-col ">
           <DialogClose className="" asChild>
             <Button type="button" variant="secondary">

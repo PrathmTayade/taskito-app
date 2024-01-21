@@ -11,11 +11,14 @@ datasource db {
 }
 
 model TaskApp_Board {
-  id      String @id @default(uuid())
-  orgId   String
-  title   String
-  imageId String
-
+  id            String @id @default(uuid())
+  orgId         String
+  title         String
+  imageId       String
+  imageThumbUrl String @db.Text
+  imageFullUrl  String @db.Text
+  imageUserName String @db.Text
+  imageLinkHTML String @db.Text
   // lists         List[]
 
   createdAt DateTime @default(now())

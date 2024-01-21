@@ -11,7 +11,10 @@ export async function POST(req: Request) {
     }
 
     const body = await req.json();
-    const { title, imageId } = boardFormSchema.parse(body);
+    const { title, image } = boardFormSchema.parse(body);
+
+    const [imageId, imageThumbUrl, imageFullUrl, imageLinkHTML, imageUserName] =
+      image.split("|");
 
     // check if board already exists
     const boardExists = await db.taskApp_Board.findFirst({
@@ -27,9 +30,13 @@ export async function POST(req: Request) {
     // create subreddit and associate it with the user
     const board = await db.taskApp_Board.create({
       data: {
-        title: title,
-        orgId: orgId,
-        imageId: imageId as string,
+        title,
+        orgId,
+        imageId,
+        imageFullUrl,
+        imageLinkHTML,
+        imageThumbUrl,
+        imageUserName,
       },
     });
 
@@ -48,7 +55,7 @@ export async function POST(req: Request) {
       return new Response(error.message, { status: 422 });
     }
 
-    return new Response("Could not board subreddit", { status: 500 });
+    return new Response("Could not create a board", { status: 500 });
   }
 }
 export async function GET() {
