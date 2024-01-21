@@ -36,6 +36,7 @@ import axios, { AxiosError } from "axios";
 import { revalidatePath, revalidateTag } from "next/cache";
 import { useParams, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
+import ImagePicker from "./image-picker";
 
 interface CreateBoardForm {}
 
@@ -130,6 +131,7 @@ const CreateBoardForm = ({}: CreateBoardForm) => {
             </FormItem>
           )}
         />
+        <ImagePicker id={"mock-imge-if"}  />
         <div className="">
           <Button
             type="submit"
