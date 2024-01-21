@@ -2,16 +2,14 @@
 
 import { unsplash, unsplashimages } from "@/lib/unsplash";
 import { cn } from "@/lib/utils";
+import { RadioGroup } from "@radix-ui/react-radio-group";
 import { useQuery } from "@tanstack/react-query";
 import { Check, Loader2 } from "lucide-react";
-import Link from "next/link";
-import { useState } from "react";
 import Image from "next/image";
-import { Input } from "./ui/input";
-import { RadioGroup } from "@radix-ui/react-radio-group";
+import Link from "next/link";
+import { ControllerRenderProps } from "react-hook-form";
 import { FormControl, FormItem, FormLabel } from "./ui/form";
 import { RadioGroupItem } from "./ui/radio-group";
-import { ControllerRenderProps } from "react-hook-form";
 
 interface ImagePickerProps {
   errors?: Record<string, string[] | undefined>;
@@ -47,13 +45,19 @@ const ImagePicker = ({ errors, field }: ImagePickerProps) => {
   } = useQuery({
     queryKey: ["todos"],
     queryFn: async () => {
-      // const res = await unsplash.photos.getRandom({
-      //   collectionIds: ["310799"],
-      //   count: 9,
-      // });
-      const res = unsplashimages;
+      if (process.env.NODE_ENV === "production") {
+        const res = await unsplash.photos.getRandom({
+          collectionIds: ["310799"],
+          count: 9,
+        });
+        return res.response as UnsplashImage[];
+      } else {
+        const res = unsplashimages;
+        return res as UnsplashImage[];
+      }
+
       // return res.response as UnsplashImage[];
-      return res as UnsplashImage[];
+      // return res as UnsplashImage[];
     },
   });
 
@@ -99,6 +103,7 @@ const ImagePicker = ({ errors, field }: ImagePickerProps) => {
                 alt="Unsplash image"
                 className="object-cover rounded-sm"
                 fill
+                sizes="200px"
               />
               {field.value ===
                 `${image.id}|${image.urls.thumb}|${image.urls.full}|${image.links.html}|${image.user.name}` && (

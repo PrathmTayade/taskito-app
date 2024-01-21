@@ -1,45 +1,35 @@
 "use client";
 
-import { Copy, HelpCircle, Loader2 } from "lucide-react";
-
+import { Loader2 } from "lucide-react";
+import { boardFormSchema } from "@/actions/action-schema";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
-  DialogClose,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Hint } from "./hint";
-import * as z from "zod";
+import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation } from "@tanstack/react-query";
+import axios, { AxiosError } from "axios";
+import { useParams, useRouter } from "next/navigation";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import * as z from "zod";
+import ImagePicker from "./image-picker";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
 } from "./ui/form";
-import { ReactNode, useState } from "react";
-import { boardFormSchema } from "@/actions/action-schema";
-import router from "next/router";
-import { useMutation, useQuery } from "@tanstack/react-query";
-import axios, { AxiosError } from "axios";
-import { revalidatePath, revalidateTag } from "next/cache";
-import { useParams, useRouter } from "next/navigation";
-import { cn } from "@/lib/utils";
-import ImagePicker from "./image-picker";
-import { title } from "process";
-import { toast } from "sonner";
-import { useToast } from "./ui/use-toast";
 
 interface CreateBoardForm {
   closeForm: () => void;
@@ -152,21 +142,18 @@ const CreateBoardForm = ({ closeForm }: CreateBoardForm) => {
   );
 };
 
-const CreateBoardFormModal = () => {
+interface CreateBoardFormModalProps {
+  children: React.ReactNode;
+}
+
+const CreateBoardFormModal = ({ children }: CreateBoardFormModalProps) => {
   const [open, setOpen] = useState(false);
 
   const closeForm = () => setOpen(false);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button
-          variant="outline"
-          className="aspect-video relative h-full w-full bg-muted rounded-sm flex flex-col shadow gap-y-1 items-center justify-center hover:opacity-75 transition"
-        >
-          <p className="text-sm">Create new board</p>
-        </Button>
-      </DialogTrigger>
+      <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>Create Board</DialogTitle>

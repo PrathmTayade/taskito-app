@@ -8,9 +8,9 @@ interface BoardPageProps {
 
 const BoardPage = ({ params }: BoardPageProps) => {
   return (
-    <div className="my-8">
-      <div>Board Page</div>
-      <div>{params.boardId}</div>
+    <div className="p-4 h-full overflow-x-auto">
+      board
+      {/* <ListContainer boardId={params.boardId} data={lists} /> */}
     </div>
   );
 };

@@ -12,7 +12,7 @@ export async function createBoard(data: z.infer<typeof boardFormSchema>) {
   await db.taskApp_Board.create({
     data: {
       title: title,
-      orgId: orgId as string,
+    orgId: orgId as string,
       imageId: imageId as string,
     },
   });

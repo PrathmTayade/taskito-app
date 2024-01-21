@@ -1,15 +1,13 @@
 import CreateBoardFormModal from "@/components/create-board-form";
+import { Button } from "@/components/ui/button";
+import { TaskApp_Board } from "@prisma/client";
 import { User2 } from "lucide-react";
 import Link from "next/link";
 import { FC } from "react";
 
-type Board = {
-  id: string;
-  title: string;
-  orgId: string;
-};
+
 interface BoardListProps {
-  boards: Board[];
+  boards: TaskApp_Board[];
 }
 
 const BoardList: FC<BoardListProps> = ({ boards }) => {
@@ -25,7 +23,7 @@ const BoardList: FC<BoardListProps> = ({ boards }) => {
             key={board.id}
             href={`/board/${board.id}`}
             className="group relative aspect-video bg-no-repeat bg-center bg-cover bg-sky-700 rounded-sm h-full w-full p-2 overflow-hidden"
-            // style={{ backgroundImage: `url(${board.imageThumbUrl})` }}
+            style={{ backgroundImage: `url(${board.imageThumbUrl})` }}
           >
             <div className="absolute inset-0 bg-black/30 group-hover:bg-black/40 transition" />
             <p className="relative font-semibold text-white">{board.title}</p>
@@ -54,7 +52,14 @@ const BoardList: FC<BoardListProps> = ({ boards }) => {
           </div>
         </FormPopover> */}
         {/* create board */}
-        <CreateBoardFormModal />
+        <CreateBoardFormModal>
+          <Button
+            variant="outline"
+            className="aspect-video relative h-full w-full bg-muted rounded-sm flex flex-col shadow gap-y-1 items-center justify-center hover:opacity-75 transition"
+          >
+            <p className="text-sm">Create new board</p>
+          </Button>
+        </CreateBoardFormModal>
       </div>
     </div>
   );
