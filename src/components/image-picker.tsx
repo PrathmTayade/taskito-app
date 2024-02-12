@@ -98,13 +98,18 @@ const ImagePicker = ({ errors, field }: ImagePickerProps) => {
               />
             </FormControl>
             <FormLabel>
-              <Image
-                src={image.urls.thumb}
-                alt="Unsplash image"
-                className="object-cover rounded-sm"
-                fill
-                sizes="200px"
-              />
+              <div className="relative h-auto">
+                <Image
+                  src={image.urls.thumb}
+                  alt="Unsplash image"
+                  className="object-cover rounded-sm"
+                  // fill
+                  sizes="200px"
+                  height={200}
+                  width={200}
+                />
+              </div>
+
               {field.value ===
                 `${image.id}|${image.urls.thumb}|${image.urls.full}|${image.links.html}|${image.user.name}` && (
                 <div className="absolute inset-y-0 h-full w-full bg-black/30 flex items-center justify-center">

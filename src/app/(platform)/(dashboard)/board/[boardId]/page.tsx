@@ -1,18 +1,18 @@
-import React from "react";
 
-interface BoardPageProps {
+import { ListContainer } from "@/components/lists/list-container";
+
+interface BoardIdPageProps {
   params: {
     boardId: string;
   };
 }
 
-const BoardPage = ({ params }: BoardPageProps) => {
+const BoardIdPage = ({ params }: BoardIdPageProps) => {
   return (
     <div className="p-4 h-full overflow-x-auto">
-      board
-      {/* <ListContainer boardId={params.boardId} data={lists} /> */}
+      <ListContainer boardId={params.boardId} />
     </div>
   );
 };
 
-export default BoardPage;
+export default BoardIdPage;

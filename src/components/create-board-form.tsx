@@ -124,6 +124,7 @@ const CreateBoardForm = ({ closeForm }: CreateBoardForm) => {
             type="submit"
             disabled={status === "pending" || status === "success"}
             className={cn(status === "success" ? "bg-green-600" : "", "w-full")}
+            variant={"primary"}
           >
             {status === "pending" ? (
               <>
