@@ -15,7 +15,7 @@ import axios from "axios";
 import { CreateListForm } from "./list-form";
 
 interface ListContainerProps {
-  // data: ListWithCards[];
+  data: ListWithCards[];
   boardId: string;
 }
 
@@ -27,21 +27,7 @@ function reorder<T>(list: T[], startIndex: number, endIndex: number) {
   return result;
 }
 
-export const ListContainer = ({ boardId }: ListContainerProps) => {
-  const {
-    isLoading,
-    isError,
-    data: orderedData,
-    error,
-  } = useQuery<ListWithCards[]>({
-    queryKey: ["lists"],
-    queryFn: async () => {
-      const { data } = await axios.get("/api/list", {
-        params: { boardId: boardId },
-      });
-      return data.lists;
-    },
-  });
+export const ListContainer = ({ data, boardId }: ListContainerProps) => {
 
   // const { execute: executeUpdateListOrder } = useAction(updateListOrder, {
   //   onSuccess: () => {
@@ -60,6 +46,12 @@ export const ListContainer = ({ boardId }: ListContainerProps) => {
   //     toast.error(error);
   //   },
   // });
+
+  const [orderedData, setOrderedData] = useState(data);
+
+  useEffect(() => {
+    setOrderedData(data);
+  }, [data]);
 
   const onDragEnd = (result: any) => {
     const { destination, source, type } = result;
@@ -162,13 +154,9 @@ export const ListContainer = ({ boardId }: ListContainerProps) => {
 
   return (
     <ol className="flex gap-x-3 h-full">
-      {isLoading ? (
-        <div>Loading...</div>
-      ) : (
-        orderedData?.map((list, index) => {
-          return <ListItem key={list.id} index={index} data={list} />;
-        })
-      )}
+      {orderedData?.map((list, index) => {
+        return <ListItem key={list.id} index={index} data={list} />;
+      })}
       <CreateListForm />
       <div className="flex-shrink-0 w-1" />
     </ol>

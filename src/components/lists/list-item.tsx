@@ -7,6 +7,8 @@ import { cn } from "@/lib/utils";
 
 import { ListHeader } from "./list-header";
 import { ListWithCards } from "@/lib/types";
+import { CardItem } from "../cards/card-item";
+import { CreateCardForm } from "../cards/card-form";
 
 interface ListItemProps {
   data: ListWithCards;
@@ -77,6 +79,17 @@ export const ListItem = ({ data, index }: ListItemProps) => {
       <div className="w-full rounded-md bg-[#f1f2f4] shadow-md pb-2">
         <ListHeader onAddCard={enableEditing} data={data} />
         {/* cards for the items */}
+        <ol
+          className={cn(
+            "mx-1 px-1 py-0.5 flex flex-col gap-y-2",
+            data.cards.length > 0 ? "mt-2" : "mt-0"
+          )}
+        >
+          {data.cards.map((card, index) => (
+            <CardItem index={index} key={card.id} data={card} />
+          ))}
+          <CreateCardForm listId={data.id}/>
+        </ol>
       </div>
     </li>
   );

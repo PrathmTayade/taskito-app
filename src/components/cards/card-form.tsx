@@ -5,8 +5,7 @@ import { Loader2, Plus, X } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 import { useState, useRef, ElementRef } from "react";
 import { useEventListener, useOnClickOutside } from "usehooks-ts";
-import { ListWrapper } from "./list-wrapper";
-import { CreateList } from "@/actions/action-schema";
+import { CreateCard, CreateList } from "@/actions/action-schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -28,34 +27,40 @@ import {
 } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { revalidatePathFromServer } from "@/lib/action-utils";
+import { Textarea } from "../ui/textarea";
 
-const ListForm = ({ disableEditing }: { disableEditing: () => void }) => {
-  const router = useRouter();
-  const params = useParams();
+const CardForm = ({
+  disableEditing,
+  listId,
+}: {
+  disableEditing: () => void;
+  listId: string;
+}) => {
   const queryClient = useQueryClient();
-
+  const params = useParams();
   const formRef = useRef<ElementRef<"form">>(null);
 
-  const form = useForm<z.infer<typeof CreateList>>({
-    resolver: zodResolver(CreateList),
+  const form = useForm<z.infer<typeof CreateCard>>({
+    resolver: zodResolver(CreateCard),
     defaultValues: {
       title: "",
+      listId: listId,
       boardId: params.boardId as string,
     },
   });
 
   const {
-    mutate: createList,
+    mutate: createCard,
     status,
     data,
     reset,
   } = useMutation({
-    mutationKey: ["createList"],
-    mutationFn: (payload: z.infer<typeof CreateList>) =>
-      axios.post("/api/list", payload),
+    mutationKey: ["createCard"],
+    mutationFn: (payload: z.infer<typeof CreateCard>) =>
+      axios.post("/api/card", payload),
     onSuccess(data, variables, context) {
-      toast.success(`List "${data.data.title}" created`);
-      // queryClient.invalidateQueries({ queryKey: ["lists"] });
+      toast.success(`Card "${data.data.title}" created`);
+      // queryClient.invalidateQueries({ queryKey: ["cards"] });
       revalidatePathFromServer(`/board/${params.boardId}`);
       reset();
       disableEditing();
@@ -86,9 +91,8 @@ const ListForm = ({ disableEditing }: { disableEditing: () => void }) => {
     },
   });
 
-  const onSubmit = (values: z.infer<typeof CreateList>) => {
-    console.log(values);
-    createList(values);
+  const onSubmit = (values: z.infer<typeof CreateCard>) => {
+    createCard(values);
   };
 
   useOnClickOutside(formRef, disableEditing);
@@ -109,7 +113,7 @@ const ListForm = ({ disableEditing }: { disableEditing: () => void }) => {
           render={({ field }) => (
             <FormItem>
               <FormControl>
-                <Input placeholder="List Title" {...field} />
+                <Textarea placeholder="Card Title" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -130,7 +134,7 @@ const ListForm = ({ disableEditing }: { disableEditing: () => void }) => {
             ) : status === "success" ? (
               "Added"
             ) : (
-              "Add list"
+              "Add card"
             )}
           </Button>
           <Button
@@ -147,7 +151,7 @@ const ListForm = ({ disableEditing }: { disableEditing: () => void }) => {
   );
 };
 
-export const CreateListForm = () => {
+export const CreateCardForm = ({ listId }: { listId: string }) => {
   const [isEditing, setIsEditing] = useState(false);
 
   const enableEditing = () => {
@@ -163,19 +167,20 @@ export const CreateListForm = () => {
   };
   useEventListener("keydown", onKeyDown);
   return (
-    <ListWrapper>
+    <div className="pt-2">
       {isEditing ? (
-        <ListForm disableEditing={disableEditing} />
+        <CardForm disableEditing={disableEditing} listId={listId} />
       ) : (
-        <button
-          type="button"
+        <Button
           onClick={enableEditing}
-          className="w-full rounded-md bg-white/80 hover:bg-white/50 transition p-3 flex items-center font-medium text-sm text-black"
+          className="h-auto px-2 py-1.5 w-full justify-start text-muted-foreground text-sm"
+          size="sm"
+          variant="ghost"
         >
           <Plus className="h-4 w-4 mr-2" />
-          Add a list
-        </button>
+          Add a card
+        </Button>
       )}
-    </ListWrapper>
+    </div>
   );
 };

@@ -1,4 +1,4 @@
-import { CreateList } from "@/actions/action-schema";
+import { CreateCard, CreateList } from "@/actions/action-schema";
 import { db } from "@/lib/db";
 import { ListWithCards } from "@/lib/types";
 import { auth } from "@clerk/nextjs";
@@ -45,12 +45,14 @@ export async function POST(req: Request) {
     return new Response("Unauthorized", { status: 401 });
   }
   const body = await req.json();
-  const { title, boardId } = CreateList.parse(body);
+  const { title, listId } = CreateCard.parse(body);
   try {
-    const board = await db.taskApp_Board.findUnique({
+    const board = await db.taskApp_List.findUnique({
       where: {
-        id: boardId,
-        orgId,
+        id: listId,
+        board: {
+          orgId,
+        },
       },
     });
 
@@ -60,23 +62,23 @@ export async function POST(req: Request) {
       };
     }
     // Get previous order of lists
-    const lastList = await db.taskApp_List.findFirst({
-      where: { boardId: boardId },
+    const lastCard = await db.taskApp_Card.findFirst({
+      where: { listId: listId },
       orderBy: { order: "desc" },
       select: { order: true },
     });
 
-    const newOrder = lastList ? lastList.order + 1 : 1;
+    const newOrder = lastCard ? lastCard.order + 1 : 1;
 
-    const list = await db.taskApp_List.create({
+    const card = await db.taskApp_Card.create({
       data: {
         title: title,
-        boardId: boardId,
+        listId: listId,
         order: newOrder,
       },
     });
 
-    return Response.json(list);
+    return Response.json(card);
   } catch (error) {
     if (error instanceof z.ZodError) {
       return new Response(error.message, { status: 422 });
