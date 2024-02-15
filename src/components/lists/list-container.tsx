@@ -28,7 +28,6 @@ function reorder<T>(list: T[], startIndex: number, endIndex: number) {
 }
 
 export const ListContainer = ({ data, boardId }: ListContainerProps) => {
-
   // const { execute: executeUpdateListOrder } = useAction(updateListOrder, {
   //   onSuccess: () => {
   //     toast.success("List reordered");
@@ -153,12 +152,25 @@ export const ListContainer = ({ data, boardId }: ListContainerProps) => {
   };
 
   return (
-    <ol className="flex gap-x-3 h-full">
-      {orderedData?.map((list, index) => {
-        return <ListItem key={list.id} index={index} data={list} />;
-      })}
-      <CreateListForm />
-      <div className="flex-shrink-0 w-1" />
-    </ol>
+    <DragDropContext onDragEnd={onDragEnd}>
+      <Droppable droppableId="lists" type="lists" direction="horizontal">
+        {(provided) => {
+          return (
+            <ol
+              ref={provided.innerRef}
+              {...provided.droppableProps}
+              className="flex gap-x-3 h-full"
+            >
+              {orderedData?.map((list, index) => {
+                return <ListItem key={list.id} index={index} data={list} />;
+              })}
+              {provided.placeholder}
+              <CreateListForm />
+              <div className="flex-shrink-0 w-1" />
+            </ol>
+          );
+        }}
+      </Droppable>
+    </DragDropContext>
   );
 };

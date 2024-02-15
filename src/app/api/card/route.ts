@@ -1,4 +1,8 @@
-import { CreateCard, CreateList } from "@/actions/action-schema";
+import {
+  CreateCard,
+  CreateList,
+  UpdateCardOrder,
+} from "@/actions/action-schema";
 import { db } from "@/lib/db";
 import { ListWithCards } from "@/lib/types";
 import { auth } from "@clerk/nextjs";
@@ -6,6 +10,7 @@ import { NextRequest } from "next/server";
 import { list } from "postcss";
 import { z } from "zod";
 
+// todo fix
 export async function GET(req: NextRequest) {
   const { orgId } = auth();
   if (!orgId) {
@@ -39,6 +44,7 @@ export async function GET(req: NextRequest) {
   } catch (error) {}
 }
 
+// Create Card
 export async function POST(req: Request) {
   const { orgId } = auth();
   if (!orgId) {
@@ -84,5 +90,47 @@ export async function POST(req: Request) {
       return new Response(error.message, { status: 422 });
     }
     return new Response("Could not create a List", { status: 500 });
+  }
+}
+
+// Update order of the card
+export async function PUT(req: Request) {
+  const { userId, orgId } = auth();
+
+  if (!userId || !orgId) {
+    return {
+      error: "Unauthorized",
+    };
+  }
+  const body = await req.json();
+
+  const { items } = UpdateCardOrder.parse(body);
+ 
+
+  try {
+    const transaction = items.map((card) =>
+      db.taskApp_Card.update({
+        where: {
+          id: card.id,
+          list: {
+            board: {
+              orgId,
+            },
+          },
+        },
+        data: {
+          order: card.order,
+          listId: card.listId,
+        },
+      })
+    );
+
+   const updatedCards = await db.$transaction(transaction);
+   return Response.json(updatedCards)
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return new Response(error.message, { status: 422 });
+    }
+    return new Response("Could not update the cards", { status: 500 });
   }
 }
