@@ -84,3 +84,36 @@ export async function POST(req: Request) {
     return new Response("Could not create a List", { status: 500 });
   }
 }
+
+export async function DELETE(req: Request) {
+  const { orgId } = auth();
+  if (!orgId) {
+    return new Response("Unauthorized", { status: 401 });
+  }
+  const { searchParams } = new URL(req.url);
+  const listId = searchParams.get("listId");
+
+  try {
+    // check if board exists
+    const List = await db.taskApp_List.findFirst({
+      where: {
+        id: listId as string,
+        boardId: searchParams.get("boardId") as string,
+      },
+    });
+
+    if (!List) {
+      return new Response("List does not exist", { status: 404 });
+    }
+
+    // delete board
+    await db.taskApp_List.delete({
+      where: {
+        id: listId as string,
+        boardId: searchParams.get("boardId") as string,
+      },
+    });
+
+    return new Response("List deleted successfully", { status: 200 });
+  } catch (error) {}
+}

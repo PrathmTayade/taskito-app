@@ -29,8 +29,8 @@ export const BoardOptions = ({ id }: BoardOptionsProps) => {
   } = useMutation({
     mutationKey: ["deleteBoard"],
     mutationFn: (payload: { id: string }) =>
-      axios.post("/api/board/delete",payload ),
-      // axios.delete(`/api/board/create`, { data: payload }),
+      axios.post("/api/board/delete", payload),
+    // axios.delete(`/api/board/create`, { data: payload }),
     onSuccess(data, variables, context) {
       toast.success("Board deleted.");
       router.push("/");
@@ -61,7 +61,7 @@ export const BoardOptions = ({ id }: BoardOptionsProps) => {
           <MoreHorizontal className="h-4 w-4" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="px-0 pt-3 pb-3" side="bottom" align="start">
+      <PopoverContent className="pt-3 pb-3" side="bottom" align="start">
         <div className="text-sm font-medium text-center text-neutral-600 pb-4">
           Board actions
         </div>

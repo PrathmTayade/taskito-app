@@ -6,6 +6,7 @@ import { useEventListener } from "usehooks-ts";
 import { useState, useRef, ElementRef } from "react";
 
 import { useAction } from "@/hooks/use-action";
+import { ListOptions } from "./list-options";
 
 interface ListHeaderProps {
   data: TaskApp_List;
@@ -90,7 +91,7 @@ export const ListHeader = ({ data, onAddCard }: ListHeaderProps) => {
           {title}
         </div>
       )}
-      {/* <ListOptions onAddCard={onAddCard} data={data} /> */}
+      <ListOptions onAddCard={onAddCard} data={data} />
     </div>
   );
 };

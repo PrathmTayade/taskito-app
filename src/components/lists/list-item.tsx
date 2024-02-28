@@ -105,6 +105,7 @@ export const ListItem = ({ data, index }: ListItemProps) => {
                 </ol>
               )}
             </Droppable>
+            <CreateCardForm listId={data.id}/>
           </div>
         </li>
       )}
