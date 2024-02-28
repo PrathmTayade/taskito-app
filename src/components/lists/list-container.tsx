@@ -53,6 +53,8 @@ export const ListContainer = ({ data, boardId }: ListContainerProps) => {
   }, [data]);
 
   const onDragEnd = (result: any) => {
+    toast.info("feature WIP check again soon");
+
     const { destination, source, type } = result;
 
     if (!destination) {
