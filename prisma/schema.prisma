@@ -33,7 +33,7 @@ model TaskApp_List {
 
   boardId String
   board   TaskApp_Board @relation(fields: [boardId], references: [id], onDelete: Cascade)
-  
+
   createdAt DateTime       @default(now())
   updatedAt DateTime       @updatedAt
   cards     TaskApp_Card[]
@@ -54,4 +54,12 @@ model TaskApp_Card {
   updatedAt DateTime @updatedAt
 
   @@index([listId])
+}
+
+model TaskApp_AuditLog {
+  id    String @id @default(uuid())
+  orgId String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }

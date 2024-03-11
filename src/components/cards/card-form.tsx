@@ -57,7 +57,7 @@ const CardForm = ({
   } = useMutation({
     mutationKey: ["createCard"],
     mutationFn: (payload: z.infer<typeof CreateCard>) =>
-      axios.post("/api/card", payload),
+      axios.post("/api/cards", payload),
     onSuccess(data, variables, context) {
       toast.success(`Card "${data.data.title}" created`);
       // queryClient.invalidateQueries({ queryKey: ["cards"] });
