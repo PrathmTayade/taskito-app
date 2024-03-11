@@ -1,18 +1,29 @@
 "use client";
 
-import { toast } from "sonner";
-import { AlignLeft } from "lucide-react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { AlignLeft, Loader2 } from "lucide-react";
 import { useParams } from "next/navigation";
-import { useState, useRef, ElementRef } from "react";
-import { useQueryClient } from "@tanstack/react-query";
+import { ElementRef, useRef, useState } from "react";
+import { toast } from "sonner";
 import { useEventListener, useOnClickOutside } from "usehooks-ts";
-
-import { useAction } from "@/hooks/use-action";
-
 import { Skeleton } from "@/components/ui/skeleton";
-
+import { UpdateCard } from "@/actions/action-schema";
 import { Button } from "@/components/ui/button";
 import { CardWithList } from "@/lib/types";
+import { cn } from "@/lib/utils";
+import { zodResolver } from "@hookform/resolvers/zod";
+import axios, { AxiosError } from "axios";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Textarea } from "../ui/textarea";
 
 interface DescriptionProps {
   data: CardWithList;
@@ -27,6 +38,14 @@ export const Description = ({ data }: DescriptionProps) => {
   const formRef = useRef<ElementRef<"form">>(null);
   const textareaRef = useRef<ElementRef<"textarea">>(null);
 
+  const form = useForm<z.infer<typeof UpdateCard>>({
+    resolver: zodResolver(UpdateCard),
+    defaultValues: {
+      id: data.id,
+      description: data.description ? data.description : "",
+    },
+  });
+
   const enableEditing = () => {
     setIsEditing(true);
     setTimeout(() => {
@@ -36,6 +55,7 @@ export const Description = ({ data }: DescriptionProps) => {
 
   const disableEditing = () => {
     setIsEditing(false);
+    form.reset();
   };
 
   const onKeyDown = (e: KeyboardEvent) => {
@@ -45,33 +65,45 @@ export const Description = ({ data }: DescriptionProps) => {
   };
 
   useEventListener("keydown", onKeyDown);
-  useOnClickOutside(formRef, disableEditing);
 
-  // const { execute, fieldErrors } = useAction(updateCard, {
-  //   onSuccess: (data) => {
-  //     queryClient.invalidateQueries({
-  //       queryKey: ["card", data.id],
-  //     });
-  //     queryClient.invalidateQueries({
-  //       queryKey: ["card-logs", data.id]
-  //     });
-  //     toast.success(`Card "${data.title}" updated`);
-  //     disableEditing();
-  //   },
-  //   onError: (error) => {
-  //     toast.error(error);
-  //   },
-  // });
+  const {
+    mutate: updateCard,
+    status,
+    data: cardData,
+    reset,
+  } = useMutation({
+    mutationKey: ["createCard"],
+    mutationFn: (payload: z.infer<typeof UpdateCard>) =>
+      axios.put(`/api/cards/${data.id}`, payload),
+    onSuccess(data, variables, context) {
+      toast.success("Description saved");
+      queryClient.invalidateQueries({ queryKey: ["card"] });
+      // revalidatePathFromServer(`/board/${params.boardId}`);
+      form.reset();
+      disableEditing();
+      reset();
+    
+    },
 
-  const onSubmit = (formData: FormData) => {
-    const description = formData.get("description") as string;
-    const boardId = params.boardId as string;
+    onError: (err) => {
+      if (err instanceof AxiosError) {
+        if (err.response?.status === 409) {
+          return toast.error("Board already exists.");
+        }
 
-    console.log({
-      id: data.id,
-      description,
-      boardId,
-    });
+        if (err.response?.status === 422) {
+          return toast.error("Invalid Board name.");
+        }
+
+        if (err.response?.status === 401) {
+          return toast.error("Unauthorized.");
+        }
+      }
+    },
+  });
+
+  const onSubmit = (values: z.infer<typeof UpdateCard>) => {
+    updateCard(values);
   };
 
   return (
@@ -80,34 +112,61 @@ export const Description = ({ data }: DescriptionProps) => {
       <div className="w-full">
         <p className="font-semibold text-neutral-700 mb-2">Description</p>
         {isEditing ? (
-          // <form
-          //   action={onSubmit}
-          //   ref={formRef}
-          //   className="space-y-2"
-          // >
-          //   <FormTextarea
-          //     id="description"
-          //     className="w-full mt-2"
-          //     placeholder="Add a more detailed description"
-          //     defaultValue={data.description || undefined}
-          //     errors={fieldErrors}
-          //     ref={textareaRef}
-          //   />
-          //   <div className="flex items-center gap-x-2">
-          //     <FormSubmit>
-          //       Save
-          //     </FormSubmit>
-          //     <Button
-          //       type="button"
-          //       onClick={disableEditing}
-          //       size="sm"
-          //       variant="ghost"
-          //     >
-          //       Cancel
-          //     </Button>
-          //   </div>
-          // </form>
-          <div>hello</div>
+          <Form {...form}>
+            <form
+              ref={formRef}
+              onSubmit={form.handleSubmit(onSubmit)}
+              className="space-y-2"
+            >
+              <FormField
+                control={form.control}
+                name="description"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <Textarea
+                        className="w-full mt-2"
+                        placeholder="Add a more detailed description"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <div className="flex items-center gap-x-2">
+                <Button
+                  type="submit"
+                  variant={"primary"}
+                  size={"sm"}
+                  disabled={status === "pending" || status === "success"}
+                  className={cn(
+                    status === "success" ? "bg-green-600" : "",
+                    "px-8"
+                  )}
+                >
+                  {status === "pending" ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Saving
+                    </>
+                  ) : status === "success" ? (
+                    "Saved"
+                  ) : (
+                    "Save"
+                  )}
+                </Button>
+                <Button
+                  type="button"
+                  onClick={disableEditing}
+                  size="sm"
+                  variant="ghost"
+                >
+                  Cancel
+                </Button>
+              </div>
+            </form>
+          </Form>
         ) : (
           <div
             onClick={enableEditing}

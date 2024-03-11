@@ -38,6 +38,7 @@ const CardForm = ({
 }) => {
   const queryClient = useQueryClient();
   const params = useParams();
+
   const formRef = useRef<ElementRef<"form">>(null);
 
   const form = useForm<z.infer<typeof CreateCard>>({

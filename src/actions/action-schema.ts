@@ -37,6 +37,22 @@ export const CreateCard = z.object({
   listId: z.string(),
 });
 
+export const UpdateCard = z.object({
+  id: z
+    .string({
+      required_error: "Card Id required",
+      invalid_type_error: "Invalid card",
+    })
+    .min(1),
+  description: z
+    .string({
+      required_error: "Description required",
+      invalid_type_error: "Invalid Description",
+    })
+    .min(3, { message: "Description too short" }),
+  // boardId: z.string().min(1, { message: "Board Id required" }),
+});
+
 export const UpdateListOrder = z.object({
   items: z.array(
     z.object({
