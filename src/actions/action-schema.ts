@@ -50,7 +50,6 @@ export const UpdateCard = z.object({
       invalid_type_error: "Invalid Description",
     })
     .min(3, { message: "Description too short" }),
-  // boardId: z.string().min(1, { message: "Board Id required" }),
 });
 
 export const UpdateListOrder = z.object({

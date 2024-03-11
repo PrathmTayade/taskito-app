@@ -1,28 +1,27 @@
 "use client";
 
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { AlignLeft, Loader2 } from "lucide-react";
-import { useParams } from "next/navigation";
-import { ElementRef, useRef, useState } from "react";
-import { toast } from "sonner";
-import { useEventListener, useOnClickOutside } from "usehooks-ts";
-import { Skeleton } from "@/components/ui/skeleton";
 import { UpdateCard } from "@/actions/action-schema";
 import { Button } from "@/components/ui/button";
-import { CardWithList } from "@/lib/types";
-import { cn } from "@/lib/utils";
-import { zodResolver } from "@hookform/resolvers/zod";
-import axios, { AxiosError } from "axios";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
 import {
   Form,
   FormControl,
   FormField,
   FormItem,
-  FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { Skeleton } from "@/components/ui/skeleton";
+import { CardWithList } from "@/lib/types";
+import { cn } from "@/lib/utils";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import axios, { AxiosError } from "axios";
+import { AlignLeft, Loader2 } from "lucide-react";
+import { useParams } from "next/navigation";
+import { ElementRef, useRef, useState } from "react";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import { useEventListener } from "usehooks-ts";
+import { z } from "zod";
 import { Textarea } from "../ui/textarea";
 
 interface DescriptionProps {
@@ -82,7 +81,6 @@ export const Description = ({ data }: DescriptionProps) => {
       form.reset();
       disableEditing();
       reset();
-    
     },
 
     onError: (err) => {
