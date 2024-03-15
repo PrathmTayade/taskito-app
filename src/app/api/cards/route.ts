@@ -96,9 +96,7 @@ export async function PUT(req: Request) {
   const { userId, orgId } = auth();
 
   if (!userId || !orgId) {
-    return {
-      error: "Unauthorized",
-    };
+    return new Response("Unauthorized", { status: 404 });
   }
   const body = await req.json();
 
