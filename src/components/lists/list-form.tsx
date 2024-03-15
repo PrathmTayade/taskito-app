@@ -55,8 +55,8 @@ const ListForm = ({ disableEditing }: { disableEditing: () => void }) => {
       axios.post("/api/list", payload),
     onSuccess(data, variables, context) {
       toast.success(`List "${data.data.title}" created`);
-      // queryClient.invalidateQueries({ queryKey: ["lists"] });
-      revalidatePathFromServer(`/board/${params.boardId}`);
+      queryClient.invalidateQueries({ queryKey: ["lists", params.boardId] });
+      // revalidatePathFromServer(`/board/${params.boardId}`);
       reset();
       disableEditing();
       //  closeForm();

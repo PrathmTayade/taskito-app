@@ -55,8 +55,11 @@ const CardForm = ({
       axios.post("/api/cards", payload),
     onSuccess(data, variables, context) {
       toast.success(`Card "${data.data.title}" created`);
-      // queryClient.invalidateQueries({ queryKey: ["cards"] });
-      revalidatePathFromServer(`/board/${params.boardId}`);
+      // revalidatePathFromServer(`/board/${params.boardId}`);
+      queryClient.invalidateQueries({
+        queryKey: ["lists", params.boardId],
+      });
+
       reset();
       disableEditing();
       //  closeForm();

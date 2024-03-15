@@ -7,12 +7,13 @@ import { useAction } from "@/hooks/use-action";
 
 import { ListWithCards } from "@/lib/types";
 import { ListItem } from "./list-item";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { db } from "@/lib/db";
 import { auth } from "@clerk/nextjs";
-import { redirect } from "next/navigation";
+import { redirect, useParams } from "next/navigation";
 import axios from "axios";
 import { CreateListForm } from "./list-form";
+import { fetcher } from "@/lib/fetcher";
 
 interface ListContainerProps {
   data: ListWithCards[];
@@ -45,15 +46,72 @@ export const ListContainer = ({ data, boardId }: ListContainerProps) => {
   //     toast.error(error);
   //   },
   // });
+  const params = useParams();
+  const queryClient = useQueryClient();
+  const fetchLists = async () => {
+    const { data } = await axios.get("/api/list", {
+      params: { boardId: boardId },
+    });
+    return data.lists;
+  };
 
-  const [orderedData, setOrderedData] = useState(data);
+  const {
+    data: listData,
+    isPending,
+    error,
+    refetch: refectLists,
+  } = useQuery<ListWithCards[]>({
+    queryKey: ["lists", boardId],
+    queryFn: fetchLists,
+
+    // initialData: [],
+    // enabled: ,
+    // select: (data) => data.sort((a, b) => a.order - b.order),
+  });
+
+  /* //todo  
+  1 is pending states
+  2 error then swithcback to orginal states
+  3 not use setdata directly as we dont know if its success
+  
+  */
+ 
+  const {
+    mutate: updateListOrder,
+    isPending: isUpdatingListOrder,
+    isError: isListOrderError,
+    error: listOrderError,
+  } = useMutation({
+    mutationFn: (newListItems: ListWithCards[]) =>
+      axios.patch("/api/list", { items: newListItems, boardId: boardId }),
+    onSettled: () => {
+      // queryClient.invalidateQueries({ queryKey: ["lists", params.boardId] });
+      refectLists();
+      toast.success("List reordered");
+    },
+    // console.log("list updated"),
+
+    mutationKey: ["updateLists"],
+  });
+  const [orderedData, setOrderedData] = useState<ListWithCards[]>(
+    listData || []
+  );
 
   useEffect(() => {
-    setOrderedData(data);
-  }, [data]);
+    if (listData) setOrderedData(listData);
+  }, [listData]);
+
+  if (error) {
+    console.log(error);
+
+    return <div>error loading the data {error.message}</div>;
+  }
+  if (isPending) {
+    <div> loading</div>;
+  }
 
   const onDragEnd = (result: any) => {
-    toast.info("feature WIP check again soon");
+    console.log(result);
 
     const { destination, source, type } = result;
 
@@ -70,17 +128,19 @@ export const ListContainer = ({ data, boardId }: ListContainerProps) => {
     }
 
     // User moves a list
-    if (type === "list") {
+    if (type === "lists") {
       const items = reorder(orderedData, source.index, destination.index).map(
         (item, index) => ({ ...item, order: index })
       );
+      console.log(items);
 
       setOrderedData(items);
       // executeUpdateListOrder({ items, boardId });
+      updateListOrder(items);
     }
 
     // User moves a card
-    if (type === "card") {
+    if (type === "cards") {
       let newOrderedData = [...orderedData];
 
       // Source and destination list
@@ -120,10 +180,18 @@ export const ListContainer = ({ data, boardId }: ListContainerProps) => {
         sourceList.cards = reorderedCards;
 
         setOrderedData(newOrderedData);
+        toast.info("feature WIP check again soon");
+
         // executeUpdateCardOrder({
         //   boardId: boardId,
         //   items: reorderedCards,
         // });
+
+        // refectLists();
+        // queryClient.invalidateQueries({
+        //   queryKey: ["lists", params.boardId],
+        // });
+
         // User moves the card to another list
       } else {
         // Remove card from the source list
@@ -145,6 +213,8 @@ export const ListContainer = ({ data, boardId }: ListContainerProps) => {
         });
 
         setOrderedData(newOrderedData);
+        toast.info("feature WIP check again soon");
+
         // executeUpdateCardOrder({
         //   boardId: boardId,
         //   items: destList.cards,

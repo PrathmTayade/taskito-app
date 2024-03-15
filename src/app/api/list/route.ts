@@ -85,6 +85,33 @@ export async function POST(req: Request) {
   }
 }
 
+export async function PATCH(req: Request, res: Response) {
+  const { orgId } = auth();
+  if (!orgId) {
+    return new Response("Unauthorized", { status: 401 });
+  }
+  const body = await req.json();
+
+  const newList: ListWithCards[] = body.items;
+  if (!newList) {
+    return new Response("No lists provided", { status: 400 });
+  }
+
+  try {
+    const list = await db.$transaction(
+      newList.map((list) =>
+        db.taskApp_List.update({
+          data: { order: list.order },
+          where: { id: list.id, boardId: body.boardId },
+        })
+      )
+    );
+    return Response.json({ list: list }, { status: 200 });
+  } catch (error) {
+    return Response.json({ error: error }, { status: 500 });
+  }
+}
+
 export async function DELETE(req: Request) {
   const { orgId } = auth();
   if (!orgId) {

@@ -21,7 +21,7 @@ export const CardModal = () => {
 
   const {
     data: cardData,
-    isLoading,
+    isPending,
     error,
   } = useQuery<CardWithList>({
     queryKey: ["card", id],
@@ -43,32 +43,42 @@ export const CardModal = () => {
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent>
-        {!cardData || isLoading ? (
-          <Header.Skeleton />
+        {error ? (
+          <div className="flex flex-col gap-2 ">
+            <span>Something went wrong. </span>
+            <span>{error.message}</span>
+          </div>
         ) : (
-          <Header data={cardData} />
-        )}
-        <div className="grid grid-cols-1 md:grid-cols-4 md:gap-4">
-          <div className="col-span-3">
-            <div className="w-full space-y-6">
-              {!cardData || isLoading ? (
-                <Description.Skeleton />
-              ) : (
-                <Description data={cardData} />
-              )}
-              {/* {!auditLogsData ? (
+          <>
+            {" "}
+            {!cardData || isPending ? (
+              <Header.Skeleton />
+            ) : (
+              <Header data={cardData} />
+            )}
+            <div className="grid grid-cols-1 md:grid-cols-4 md:gap-4">
+              <div className="col-span-3">
+                <div className="w-full space-y-6">
+                  {!cardData || isPending ? (
+                    <Description.Skeleton />
+                  ) : (
+                    <Description data={cardData} />
+                  )}
+                  {/* {!auditLogsData ? (
                 <Activity.Skeleton />
               ) : (
                 <Activity items={auditLogsData} />
               )} */}
+                </div>
+              </div>
+              {!cardData || isPending ? (
+                <Actions.Skeleton />
+              ) : (
+                <Actions data={cardData} />
+              )}
             </div>
-          </div>
-          {!cardData || isLoading ? (
-            <Actions.Skeleton />
-          ) : (
-            <Actions data={cardData} />
-          )}
-        </div>
+          </>
+        )}
       </DialogContent>
     </Dialog>
   );

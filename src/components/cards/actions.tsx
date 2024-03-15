@@ -69,7 +69,10 @@ export const Actions = ({ data }: ActionsProps) => {
     onSuccess(data, variables, context) {
       toast.success("Card deleted.");
       cardModal.onClose();
-      revalidatePathFromServer(`/board/${boardId}`);
+      // revalidatePathFromServer(`/board/${boardId}`);
+      queryClient.invalidateQueries({
+        queryKey: ["lists", params.boardId],
+      });
     },
 
     onError: (err) => {

@@ -28,6 +28,7 @@ interface ListOptionsProps {
 export const ListOptions = ({ data: list, onAddCard }: ListOptionsProps) => {
   const closeRef = useRef<ElementRef<"button">>(null);
   const params = useParams();
+  const queryClient = useQueryClient();
 
   const onDelete = () => deleteList(list.id);
 
@@ -44,7 +45,10 @@ export const ListOptions = ({ data: list, onAddCard }: ListOptionsProps) => {
       axios.delete(`/api/list?listId=${id}&boardId=${list.boardId}`),
     onSuccess(data, variables, context) {
       toast.success("List deleted.");
-      revalidatePathFromServer(`/board/${params.boardId}`);
+      // revalidatePathFromServer(`/board/${params.boardId}`);
+      queryClient.invalidateQueries({
+        queryKey: ["lists", params.boardId],
+      });
     },
 
     onError: (err) => {

@@ -39,8 +39,8 @@ export async function GET(req: NextRequest) {
         order: "asc",
       },
     });
-    console.log("list", lists);
-    return Response.json({ lists: lists });
+    // console.log("list", lists);
+    return Response.json({ lists: lists }, { status: 200 });
   } catch (error) {}
 }
 
