@@ -63,9 +63,7 @@ export async function POST(req: Request) {
     });
 
     if (!board) {
-      return {
-        error: "Board not found",
-      };
+      return new Response("Board not found", { status: 404 });
     }
     // Get previous order of lists
     const lastCard = await db.taskApp_Card.findFirst({
@@ -84,7 +82,7 @@ export async function POST(req: Request) {
       },
     });
 
-    return Response.json(card);
+    return Response.json({ card }, { status: 200 });
   } catch (error) {
     if (error instanceof z.ZodError) {
       return new Response(error.message, { status: 422 });

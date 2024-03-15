@@ -55,9 +55,7 @@ export async function POST(req: Request) {
     });
 
     if (!board) {
-      return {
-        error: "Board not found",
-      };
+      return new Response("Board not found", { status: 404 });
     }
     // Get previous order of lists
     const lastList = await db.taskApp_List.findFirst({
