@@ -8,7 +8,6 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Header } from "./header";
 import { Description } from "./description";
 import { Actions } from "./actions";
-import { Activity } from "./activity";
 import { CardWithList } from "@/lib/types";
 import axios from "axios";
 import { fetcher } from "@/lib/fetcher";

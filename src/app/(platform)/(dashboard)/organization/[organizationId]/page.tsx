@@ -1,12 +1,7 @@
-import { createBoard, getBoards } from "@/actions/create-board";
-import { Button } from "@/components/ui/button";
-import { db } from "@/lib/db";
-import { auth, currentUser } from "@clerk/nextjs";
-import { revalidatePath } from "next/cache";
-import React, { Suspense } from "react";
-import OrgInfo from "./_components/org-info";
-import BoardList from "./_components/board-list";
 import { Separator } from "@/components/ui/separator";
+import { db } from "@/lib/db";
+import BoardList from "./_components/board-list";
+import OrgInfo from "./_components/org-info";
 interface OrganizationPageProps {
   params: {
     organizationId: string;
