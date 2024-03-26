@@ -1,7 +1,9 @@
 import { CreateList } from "@/actions/action-schema";
+import { createAuditLog } from "@/lib/create-audit-log";
 import { db } from "@/lib/db";
 import { ListWithCards } from "@/lib/types";
 import { auth } from "@clerk/nextjs";
+import { ACTION, ENTITY_TYPE } from "@prisma/client";
 import { NextRequest } from "next/server";
 import { list } from "postcss";
 import { z } from "zod";
@@ -74,6 +76,14 @@ export async function POST(req: Request) {
       },
     });
 
+    if (list) {
+      await createAuditLog({
+        action: ACTION.CREATE,
+        entityType: ENTITY_TYPE.LIST,
+        entityId: list.id,
+        entityTitle: list.title,
+      });
+    }
     return Response.json(list);
   } catch (error) {
     if (error instanceof z.ZodError) {
@@ -137,6 +147,13 @@ export async function DELETE(req: Request) {
         id: listId as string,
         boardId: searchParams.get("boardId") as string,
       },
+    });
+
+    await createAuditLog({
+      action: ACTION.DELETE,
+      entityType: ENTITY_TYPE.LIST,
+      entityId: List.id,
+      entityTitle: List.title,
     });
 
     return new Response("List deleted successfully", { status: 200 });

@@ -3,9 +3,12 @@ import {
   CreateList,
   UpdateCardOrder,
 } from "@/actions/action-schema";
+import { createAuditLog } from "@/lib/create-audit-log";
 import { db } from "@/lib/db";
 import { ListWithCards } from "@/lib/types";
 import { auth } from "@clerk/nextjs";
+import { ACTION, ENTITY_TYPE } from "@prisma/client";
+import { List } from "lucide-react";
 import { NextRequest } from "next/server";
 import { list } from "postcss";
 import { z } from "zod";
@@ -82,6 +85,14 @@ export async function POST(req: Request) {
       },
     });
 
+    if (card) {
+      await createAuditLog({
+        action: ACTION.CREATE,
+        entityType: ENTITY_TYPE.CARD,
+        entityId: card.id,
+        entityTitle: card.title,
+      });
+    }
     return Response.json({ card }, { status: 200 });
   } catch (error) {
     if (error instanceof z.ZodError) {
@@ -158,6 +169,13 @@ export async function DELETE(req: Request) {
     // delete card
     await db.taskApp_Card.delete({
       where: { id: card.id, listId: card.listId },
+    });
+    
+    await createAuditLog({
+      action: ACTION.DELETE,
+      entityType: ENTITY_TYPE.CARD,
+      entityId: card.id,
+      entityTitle: card.title,
     });
 
     return new Response("Card deleted successfully", { status: 200 });

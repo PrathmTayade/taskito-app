@@ -1,6 +1,8 @@
 import { UpdateCard } from "@/actions/action-schema";
+import { createAuditLog } from "@/lib/create-audit-log";
 import { db } from "@/lib/db";
 import { auth } from "@clerk/nextjs";
+import { ACTION, ENTITY_TYPE } from "@prisma/client";
 import { z } from "zod";
 
 export async function GET(
@@ -60,6 +62,14 @@ export async function PUT(
         ...validatedData,
       },
     });
+    if (card) {
+      await createAuditLog({
+        action: ACTION.UPDATE,
+        entityType: ENTITY_TYPE.CARD,
+        entityId: card.id,
+        entityTitle: card.title,
+      });
+    }
     return Response.json(card, { status: 200 });
   } catch (err) {
     if (err instanceof z.ZodError) {

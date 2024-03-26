@@ -1,6 +1,8 @@
 import { boardFormSchema } from "@/actions/action-schema";
+import { createAuditLog } from "@/lib/create-audit-log";
 import { db } from "@/lib/db";
 import { auth } from "@clerk/nextjs";
+import { ACTION, ENTITY_TYPE } from "@prisma/client";
 import { z } from "zod";
 
 export async function POST(req: Request) {
@@ -41,7 +43,14 @@ export async function POST(req: Request) {
     });
 
     // create audit log
-    // await db.auditLog.create({})
+    if (board) {
+      await createAuditLog({
+        action: ACTION.CREATE,
+        entityType: ENTITY_TYPE.BOARD,
+        entityId: board.id,
+        entityTitle: board.title,
+      });
+    }
     // await db.subscription.create({
     //   data: {
     //     userId: session.user.id,

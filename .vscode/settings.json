@@ -1,3 +1,23 @@
 {
-  "cSpell.words": ["taskify"]
+  "cSpell.words": ["taskify"],
+  "workbench.colorCustomizations": {
+    "activityBar.activeBackground": "#47d1d5",
+    "activityBar.background": "#47d1d5",
+    "activityBar.foreground": "#15202b",
+    "activityBar.inactiveForeground": "#15202b99",
+    "activityBarBadge.background": "#d02fcb",
+    "activityBarBadge.foreground": "#e7e7e7",
+    "commandCenter.border": "#15202b99",
+    "sash.hoverBorder": "#47d1d5",
+    "statusBar.background": "#2bbabe",
+    "statusBar.foreground": "#15202b",
+    "statusBarItem.hoverBackground": "#229194",
+    "statusBarItem.remoteBackground": "#2bbabe",
+    "statusBarItem.remoteForeground": "#15202b",
+    "titleBar.activeBackground": "#2bbabe",
+    "titleBar.activeForeground": "#15202b",
+    "titleBar.inactiveBackground": "#2bbabe99",
+    "titleBar.inactiveForeground": "#15202b99"
+  },
+  "peacock.color": "#2bbabe"
 }

@@ -1,5 +1,7 @@
+import { createAuditLog } from "@/lib/create-audit-log";
 import { db } from "@/lib/db";
 import { auth } from "@clerk/nextjs";
+import { ACTION, ENTITY_TYPE } from "@prisma/client";
 import { z } from "zod";
 
 export async function POST(req: Request) {
@@ -30,6 +32,13 @@ export async function POST(req: Request) {
         id: boardId as string,
         orgId,
       },
+    });
+
+    await createAuditLog({
+      action: ACTION.DELETE,
+      entityType: ENTITY_TYPE.BOARD,
+      entityId: boardExists.id,
+      entityTitle: boardExists.title,
     });
 
     return new Response("Board deleted successfully", { status: 200 });
