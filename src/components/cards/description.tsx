@@ -76,7 +76,12 @@ export const Description = ({ data }: DescriptionProps) => {
       axios.put(`/api/cards/${data.id}`, payload),
     onSuccess(data, variables, context) {
       toast.success("Description saved");
-      queryClient.invalidateQueries({ queryKey: ["card"] });
+      queryClient.invalidateQueries({
+        queryKey: ["card"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["card-logs"],
+      });
       // revalidatePathFromServer(`/board/${params.boardId}`);
       form.reset();
       disableEditing();

@@ -2,9 +2,8 @@
 
 import { TaskApp_AuditLog } from "@prisma/client";
 import { ActivityIcon } from "lucide-react";
-
-// import { ActivityItem } from "@/components/activity-item";
 import { Skeleton } from "@/components/ui/skeleton";
+import { ActivityItem } from "../activity/activity-item";
 
 interface ActivityProps {
   items: TaskApp_AuditLog[];
@@ -18,8 +17,7 @@ export const Activity = ({ items }: ActivityProps) => {
         <p className="font-semibold text-neutral-700 mb-2">Activity</p>
         <ol className="mt-2 space-y-4">
           {items.map((item) => (
-            // <ActivityItem key={item.id} data={item} />
-            <div key={item.id}>{item.id}</div>
+            <ActivityItem key={item.id} data={item} />
           ))}
         </ol>
       </div>
