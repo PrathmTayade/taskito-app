@@ -1,13 +1,12 @@
 "use client";
-import { DragDropContext, Droppable } from "@hello-pangea/dnd";
-import { useEffect, useState } from "react";
-import { toast } from "sonner";
-
 import { ReorderCardItem } from "@/actions/action-schema";
 import { ListWithCards } from "@/lib/types";
+import { DragDropContext, Droppable } from "@hello-pangea/dnd";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import { useParams } from "next/navigation";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
 import { z } from "zod";
 import { CreateListForm } from "./list-form";
 import { ListItem } from "./list-item";
@@ -26,23 +25,6 @@ function reorder<T>(list: T[], startIndex: number, endIndex: number) {
 }
 
 export const ListContainer = ({ data, boardId }: ListContainerProps) => {
-  // const { execute: executeUpdateListOrder } = useAction(updateListOrder, {
-  //   onSuccess: () => {
-  //     toast.success("List reordered");
-  //   },
-  //   onError: (error) => {
-  //     toast.error(error);
-  //   },
-  // });
-
-  // const { execute: executeUpdateCardOrder } = useAction(updateCardOrder, {
-  //   onSuccess: () => {
-  //     toast.success("Card reordered");
-  //   },
-  //   onError: (error) => {
-  //     toast.error(error);
-  //   },
-  // });
   const params = useParams();
   const queryClient = useQueryClient();
   const fetchLists = async () => {
@@ -131,6 +113,7 @@ export const ListContainer = ({ data, boardId }: ListContainerProps) => {
     <div> loading</div>;
   }
 
+  // TODO refactor the entire logic oyw
   const onDragEnd = (result: any) => {
     console.log(result);
 
@@ -203,16 +186,6 @@ export const ListContainer = ({ data, boardId }: ListContainerProps) => {
         const items = ReorderCardItem.parse(reorderedCards);
         updateCardsOrder(items);
 
-        // executeUpdateCardOrder({
-        //   boardId: boardId,
-        //   items: reorderedCards,
-        // });
-
-        // refectLists();
-        // queryClient.invalidateQueries({
-        //   queryKey: ["lists", params.boardId],
-        // });
-
         // User moves the card to another list
       } else {
         // Remove card from the source list
@@ -236,13 +209,8 @@ export const ListContainer = ({ data, boardId }: ListContainerProps) => {
         setOrderedData(newOrderedData);
         console.log(newOrderedData);
 
-        // toast.info("feature WIP check again soon");
         const items = ReorderCardItem.parse(destList.cards);
         updateCardsOrder(items);
-        // executeUpdateCardOrder({
-        //   boardId: boardId,
-        //   items: destList.cards,
-        // });
       }
     }
   };

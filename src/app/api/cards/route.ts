@@ -1,16 +1,13 @@
 import {
   CreateCard,
-  CreateList,
-  UpdateCardOrder,
+  UpdateCardOrder
 } from "@/actions/action-schema";
 import { createAuditLog } from "@/lib/create-audit-log";
 import { db } from "@/lib/db";
 import { ListWithCards } from "@/lib/types";
 import { auth } from "@clerk/nextjs";
 import { ACTION, ENTITY_TYPE } from "@prisma/client";
-import { List } from "lucide-react";
 import { NextRequest } from "next/server";
-import { list } from "postcss";
 import { z } from "zod";
 
 // todo fix
