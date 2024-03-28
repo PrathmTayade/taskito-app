@@ -1,19 +1,16 @@
 "use client";
-import { toast } from "sonner";
-import { useEffect, useState } from "react";
 import { DragDropContext, Droppable } from "@hello-pangea/dnd";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
-import { useAction } from "@/hooks/use-action";
-
+import { ReorderCardItem } from "@/actions/action-schema";
 import { ListWithCards } from "@/lib/types";
-import { ListItem } from "./list-item";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { db } from "@/lib/db";
-import { auth } from "@clerk/nextjs";
-import { redirect, useParams } from "next/navigation";
 import axios from "axios";
+import { useParams } from "next/navigation";
+import { z } from "zod";
 import { CreateListForm } from "./list-form";
-import { fetcher } from "@/lib/fetcher";
+import { ListItem } from "./list-item";
 
 interface ListContainerProps {
   data: ListWithCards[];
@@ -75,7 +72,8 @@ export const ListContainer = ({ data, boardId }: ListContainerProps) => {
   3 not use setdata directly as we dont know if its success
   
   */
- 
+
+  // LIST
   const {
     mutate: updateListOrder,
     isPending: isUpdatingListOrder,
@@ -86,13 +84,36 @@ export const ListContainer = ({ data, boardId }: ListContainerProps) => {
       axios.patch("/api/list", { items: newListItems, boardId: boardId }),
     onSettled: () => {
       // queryClient.invalidateQueries({ queryKey: ["lists", params.boardId] });
-      refectLists();
       toast.success("List reordered");
+      refectLists();
     },
     // console.log("list updated"),
 
     mutationKey: ["updateLists"],
   });
+  // CARD
+  const {
+    mutate: updateCardsOrder,
+    isPending: isUpdatingCardOrder,
+    isError: isCardOrderError,
+    error: cardOrderError,
+  } = useMutation({
+    mutationFn: (newCardItems: z.infer<typeof ReorderCardItem>) =>
+      axios.patch("/api/cards", { items: newCardItems, boardId: boardId }),
+    onSuccess: () => {
+      // queryClient.invalidateQueries({ queryKey: ["Cards", params.boardId] });
+      toast.success("Card reordered");
+      refectLists();
+    },
+    onError: (error) => {
+      console.error(error);
+      toast.error(error.message);
+    },
+    // console.log("Card updated"),
+
+    mutationKey: ["updateCards"],
+  });
+
   const [orderedData, setOrderedData] = useState<ListWithCards[]>(
     listData || []
   );
@@ -135,7 +156,6 @@ export const ListContainer = ({ data, boardId }: ListContainerProps) => {
       console.log(items);
 
       setOrderedData(items);
-      // executeUpdateListOrder({ items, boardId });
       updateListOrder(items);
     }
 
@@ -180,7 +200,8 @@ export const ListContainer = ({ data, boardId }: ListContainerProps) => {
         sourceList.cards = reorderedCards;
 
         setOrderedData(newOrderedData);
-        toast.info("feature WIP check again soon");
+        const items = ReorderCardItem.parse(reorderedCards);
+        updateCardsOrder(items);
 
         // executeUpdateCardOrder({
         //   boardId: boardId,
@@ -213,8 +234,11 @@ export const ListContainer = ({ data, boardId }: ListContainerProps) => {
         });
 
         setOrderedData(newOrderedData);
-        toast.info("feature WIP check again soon");
+        console.log(newOrderedData);
 
+        // toast.info("feature WIP check again soon");
+        const items = ReorderCardItem.parse(destList.cards);
+        updateCardsOrder(items);
         // executeUpdateCardOrder({
         //   boardId: boardId,
         //   items: destList.cards,

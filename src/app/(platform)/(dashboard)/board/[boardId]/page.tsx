@@ -1,4 +1,3 @@
-
 import { ListContainer } from "@/components/lists/list-container";
 import { db } from "@/lib/db";
 import { auth } from "@clerk/nextjs";

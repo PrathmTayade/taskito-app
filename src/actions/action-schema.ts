@@ -65,16 +65,20 @@ export const UpdateListOrder = z.object({
   boardId: z.string(),
 });
 
+export const ReorderCardItem = z
+  .object({
+    id: z.string(),
+    title: z.string(),
+    order: z.number(),
+    listId: z.string(),
+    createdAt: z.string(),
+    updatedAt: z.string(),
+  })
+  .array();
+
+// export type ReorderCardItem = z.infer<typeof ReorderCardItem>;
+
 export const UpdateCardOrder = z.object({
-  items: z.array(
-    z.object({
-      id: z.string(),
-      title: z.string(),
-      order: z.number(),
-      listId: z.string(),
-      createdAt: z.date(),
-      updatedAt: z.date(),
-    })
-  ),
+  items: ReorderCardItem,
   boardId: z.string(),
 });

@@ -103,15 +103,17 @@ export async function POST(req: Request) {
 }
 
 // Update order of the card
-export async function PUT(req: Request) {
+export async function PATCH(req: Request) {
   const { userId, orgId } = auth();
 
   if (!userId || !orgId) {
     return new Response("Unauthorized", { status: 404 });
   }
   const body = await req.json();
+  console.log(body);
 
   const { items } = UpdateCardOrder.parse(body);
+  console.log("in patch card orders", items);
 
   try {
     const transaction = items.map((card) =>
@@ -132,6 +134,7 @@ export async function PUT(req: Request) {
     );
 
     const updatedCards = await db.$transaction(transaction);
+
     return Response.json(updatedCards);
   } catch (error) {
     if (error instanceof z.ZodError) {
@@ -170,7 +173,7 @@ export async function DELETE(req: Request) {
     await db.taskApp_Card.delete({
       where: { id: card.id, listId: card.listId },
     });
-    
+
     await createAuditLog({
       action: ACTION.DELETE,
       entityType: ENTITY_TYPE.CARD,
