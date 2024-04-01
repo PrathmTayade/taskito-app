@@ -53,7 +53,7 @@ const CreateBoardForm = ({ closeForm }: CreateBoardForm) => {
   } = useMutation({
     mutationKey: ["createBoard"],
     mutationFn: (payload: z.infer<typeof boardFormSchema>) =>
-      axios.post("/api/board/create", payload),
+      axios.post("/api/board", payload),
     onSuccess(data, variables, context) {
       toast.success("Board created.");
       closeForm();

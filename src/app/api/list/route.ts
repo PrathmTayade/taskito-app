@@ -141,7 +141,7 @@ export async function DELETE(req: Request) {
       return new Response("List does not exist", { status: 404 });
     }
 
-    // delete board
+    // delete list
     await db.taskApp_List.delete({
       where: {
         id: listId as string,

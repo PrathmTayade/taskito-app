@@ -19,7 +19,7 @@ interface BoardOptionsProps {
 export const BoardOptions = ({ id }: BoardOptionsProps) => {
   const router = useRouter();
   const onDelete = () => {
-    deleteBoard({ id });
+    deleteBoard(id);
   };
 
   const {
@@ -28,9 +28,8 @@ export const BoardOptions = ({ id }: BoardOptionsProps) => {
     data,
   } = useMutation({
     mutationKey: ["deleteBoard"],
-    mutationFn: (payload: { id: string }) =>
-      axios.post("/api/board/delete", payload),
-    // axios.delete(`/api/board/create`, { data: payload }),
+    mutationFn: (id: string) =>
+      axios.delete(`/api/board?boardId=${id}`),
     onSuccess(data, variables, context) {
       toast.success("Board deleted.");
       router.push("/");
