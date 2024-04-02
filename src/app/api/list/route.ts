@@ -159,3 +159,74 @@ export async function DELETE(req: Request) {
     return new Response("List deleted successfully", { status: 200 });
   } catch (error) {}
 }
+
+export async function PUT(req: Request) {
+  const { orgId } = auth();
+  if (!orgId) {
+    return new Response("Unauthorized", { status: 401 });
+  }
+  const body = await req.json();
+
+  const { listId, boardId } = body;
+
+  //check for list
+  const listToCopy = await db.taskApp_List.findUnique({
+    where: {
+      id: listId,
+      boardId: boardId,
+      board: {
+        orgId,
+      },
+    },
+    include: {
+      cards: true,
+    },
+  });
+
+  if (!listToCopy) {
+    return new Response("List does not exist", { status: 404 });
+  }
+
+  const lastList = await db.taskApp_List.findFirst({
+    where: { boardId: boardId },
+    orderBy: { order: "desc" },
+    select: { order: true },
+  });
+
+  const newOrder = lastList ? lastList.order + 1 : 1;
+
+  try {
+    const list = await db.taskApp_List.create({
+      data: {
+        title: `${listToCopy.title} - Copy`,
+        order: newOrder,
+        boardId: listToCopy.boardId,
+        cards: {
+          createMany: {
+            data: listToCopy.cards.map((card) => ({
+              title: card.title,
+              description: card.description,
+              order: card.order,
+            })),
+          },
+        },
+      },
+      include: { cards: true },
+    });
+
+    // create log
+    await createAuditLog({
+      entityTitle: list.title,
+      entityId: list.id,
+      entityType: ENTITY_TYPE.LIST,
+      action: ACTION.CREATE,
+    });
+
+    return Response.json(list);
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return new Response(error.message, { status: 422 });
+    }
+    return new Response("Could not update a List", { status: 500 });
+  }
+}

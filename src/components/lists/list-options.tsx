@@ -32,9 +32,8 @@ export const ListOptions = ({ data: list, onAddCard }: ListOptionsProps) => {
 
   const onDelete = () => deleteList(list.id);
 
-  const onCopy = () => {
-    toast.info("feature WIP check again soon");
-  };
+  const onCopy = () => copyList(list.id);
+
   const {
     mutate: deleteList,
     status,
@@ -46,6 +45,36 @@ export const ListOptions = ({ data: list, onAddCard }: ListOptionsProps) => {
     onSuccess(data, variables, context) {
       toast.success("List deleted.");
       // revalidatePathFromServer(`/board/${params.boardId}`);
+      queryClient.invalidateQueries({
+        queryKey: ["lists", params.boardId],
+      });
+    },
+
+    onError: (err) => {
+      if (err instanceof AxiosError) {
+        if (err.response?.status === 404) {
+          return toast.error("List does not exists.");
+        }
+
+        if (err.response?.status === 500) {
+          return toast.error("Could not delete the List.");
+        }
+
+        if (err.response?.status === 401) {
+          return toast.error("Unauthorized.");
+        }
+      } else {
+        toast.error("Error deleting the List.");
+      }
+    },
+  });
+  const { mutate: copyList, data } = useMutation({
+    mutationKey: ["copyList"],
+    mutationFn: (id: string) =>
+      // axios.put(`/api/list?listId=${id}&boardId=${list.boardId}`),
+      axios.put("/api/list", { listId: id, boardId: list.boardId }),
+    onSuccess(data, variables, context) {
+      toast.success("List copied.");
       queryClient.invalidateQueries({
         queryKey: ["lists", params.boardId],
       });
