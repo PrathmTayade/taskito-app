@@ -54,7 +54,7 @@ const CardForm = ({
     mutationFn: (payload: z.infer<typeof CreateCard>) =>
       axios.post("/api/cards", payload),
     onSuccess(data, variables, context) {
-      toast.success(`Card "${data.data.title}" created`);
+      toast.success(`Card "${data.data.card.title}" created`);
       // revalidatePathFromServer(`/board/${params.boardId}`);
       queryClient.invalidateQueries({
         queryKey: ["lists", params.boardId],
