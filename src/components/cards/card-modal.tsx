@@ -18,8 +18,8 @@ export const CardModal = () => {
 
   const {
     data: cardData,
-    isPending,
-    error,
+    error: cardError,
+    isPending: isCardLoading,
   } = useQuery<CardWithList>({
     queryKey: ["card", id],
     queryFn: () => fetcher(`/api/cards/${id}`),
@@ -38,29 +38,57 @@ export const CardModal = () => {
     enabled: !!id,
   });
 
-  if (isError) {
-    return <div>error loading the data</div>;
-  }
-  if (!cardData) {
-    return <div>NO data found </div>;
-  }
-
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent>
-        {error ? (
+        {cardError || auditLogsError ? (
           <div className="flex flex-col gap-2 ">
             <span>Something went wrong. </span>
-            <span>{error.message}</span>
+            <span>{cardError?.message}</span>
+            <span>{auditLogsError?.message}</span>
           </div>
         ) : (
           <>
-            {" "}
-            {isPending ? <Header.Skeleton /> : <Header data={cardData} />}
+            {isCardLoading && !cardData ? (
+              <>
+                <Header.Skeleton />
+                <div className="grid grid-cols-1 md:grid-cols-4 md:gap-4">
+                  <div className="col-span-3">
+                    <div className="w-full space-y-6">
+                      <Description.Skeleton />
+                      <Activity.Skeleton />
+                    </div>
+                  </div>
+                  <Actions.Skeleton />
+                </div>
+              </>
+            ) : (
+              <>
+                <Header data={cardData} />
+                <div className="grid grid-cols-1 md:grid-cols-4 md:gap-4">
+                  <div className="col-span-3">
+                    <div className="w-full space-y-6">
+                      <Description data={cardData} />
+
+                      {isAuditLogsPending && !auditLogsData ? (
+                        <Activity.Skeleton />
+                      ) : auditLogsError ? (
+                        <div>some error fetching logs </div>
+                      ) : (
+                        <Activity items={auditLogsData} />
+                      )}
+                    </div>
+                  </div>
+                  <Actions data={cardData} />
+                </div>
+              </>
+            )}
+
+            {/* {isCardLoading ? <Header.Skeleton /> : <Header data={cardData} />}
             <div className="grid grid-cols-1 md:grid-cols-4 md:gap-4">
               <div className="col-span-3">
                 <div className="w-full space-y-6">
-                  {isPending ? (
+                  {isCardLoading ? (
                     <Description.Skeleton />
                   ) : (
                     <Description data={cardData} />
@@ -72,8 +100,12 @@ export const CardModal = () => {
                   )}
                 </div>
               </div>
-              {isPending ? <Actions.Skeleton /> : <Actions data={cardData} />}
-            </div>
+              {isCardLoading ? (
+                <Actions.Skeleton />
+              ) : (
+                <Actions data={cardData} />
+              )}
+            </div> */}
           </>
         )}
       </DialogContent>
