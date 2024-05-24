@@ -1,17 +1,15 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  // uncomment next line if you use Prisma <5.10
+  // directUrl = env("DATABASE_URL_UNPOOLED")
+}
 
 generator client {
   provider = "prisma-client-js"
 }
 
-datasource db {
-  provider     = "mysql"
-  url          = env("DATABASE_URL")
-  relationMode = "prisma"
-}
-
-model TaskApp_Board {
+model Board {
   id            String @id @default(uuid())
   orgId         String
   title         String
@@ -21,35 +19,36 @@ model TaskApp_Board {
   imageUserName String @db.Text
   imageLinkHTML String @db.Text
 
-  list TaskApp_List[]
+  lists List[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
-model TaskApp_List {
+model List {
   id    String @id @default(uuid())
   title String
   order Int
 
   boardId String
-  board   TaskApp_Board @relation(fields: [boardId], references: [id], onDelete: Cascade)
+  board   Board  @relation(fields: [boardId], references: [id], onDelete: Cascade)
 
-  createdAt DateTime       @default(now())
-  updatedAt DateTime       @updatedAt
-  cards     TaskApp_Card[]
+  cards Card[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([boardId])
 }
 
-model TaskApp_Card {
+model Card {
   id          String  @id @default(uuid())
   title       String
   order       Int
   description String? @db.Text
 
   listId String
-  list   TaskApp_List @relation(fields: [listId], references: [id], onDelete: Cascade)
+  list   List   @relation(fields: [listId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -57,10 +56,48 @@ model TaskApp_Card {
   @@index([listId])
 }
 
-model TaskApp_AuditLog {
-  id    String @id @default(uuid())
-  orgId String
+enum ACTION {
+  CREATE
+  UPDATE
+  DELETE
+}
+
+enum ENTITY_TYPE {
+  BOARD
+  LIST
+  CARD
+}
+
+model AuditLog {
+  id          String      @id @default(uuid())
+  orgId       String
+  action      ACTION
+  entityId    String
+  entityType  ENTITY_TYPE
+  entityTitle String
+  userId      String
+  userImage   String      @db.Text
+  userName    String      @db.Text
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model OrgLimit {
+  id    String @id @default(uuid())
+  orgId String @unique
+  count Int    @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model OrgSubscription {
+  id    String @id @default(uuid())
+  orgId String @unique
+
+  stripeCustomerId       String?   @unique @map(name: "stripe_customer_id")
+  stripeSubscriptionId   String?   @unique @map(name: "stripe_subscription_id")
+  stripePriceId          String?   @map(name: "stripe_price_id")
+  stripeCurrentPeriodEnd DateTime? @map(name: "stripe_current_period_end")
 }
