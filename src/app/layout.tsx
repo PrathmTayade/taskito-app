@@ -11,7 +11,7 @@ const inter = Inter({
 export const metadata = {
   title: {
     default: siteConfig.name,
-    template: `%s | ${siteConfig.name}`, // My-org | taskify
+    template: `%s | ${siteConfig.name}`, // My-org | taskito
   },
   description: siteConfig.description,
   icons: [
