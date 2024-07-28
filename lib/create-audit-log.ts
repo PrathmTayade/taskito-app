@@ -5,15 +5,16 @@ import { db } from "@/lib/db";
 
 interface Props {
   entityId: string;
-  entityType: ENTITY_TYPE,
+  entityType: ENTITY_TYPE;
   entityTitle: string;
   action: ACTION;
-};
+}
 
 export const createAuditLog = async (props: Props) => {
   try {
     const { orgId } = auth();
     const user = await currentUser();
+    console.log(user);
 
     if (!user || !orgId) {
       throw new Error("User not found!");
@@ -30,10 +31,10 @@ export const createAuditLog = async (props: Props) => {
         action,
         userId: user.id,
         userImage: user?.imageUrl,
-        userName: user?.firstName + " " + user?.lastName,
-      }
+        userName: user.username || "You",
+      },
     });
   } catch (error) {
     console.log("[AUDIT_LOG_ERROR]", error);
   }
-}
+};
